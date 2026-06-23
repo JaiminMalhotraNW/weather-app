@@ -73,25 +73,32 @@
     <main class="site-main" id="main-content">
       <section class="search-section" aria-label="City search">
         <form class="search-form" id="search-form" novalidate>
-          <div class="search-container">
-            <label class="visually-hidden" for="city-search">Search for a city or meteorological station</label>
-            <input
-              class="search-input"
-              type="search"
-              id="city-search"
-              name="city"
-              placeholder="Search for a city or meteorological station..."
-              autocomplete="off"
-              required
-            >
-            <button class="search-button" type="submit" id="search-button">
-              <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-              </svg>
-              <span>Search</span>
-            </button>
-          </div>
+            <div class="search-container">
+                <label class="visually-hidden" for="city-search">Search for a city or meteorological station</label>
+                <input
+                  class="search-input"
+                  type="search"
+                  id="city-search"
+                  name="city"
+                  placeholder="Search for a city or meteorological station..."
+                  autocomplete="off"
+                  required
+                >
+                <button
+                  class="search-reset"
+                  type="button"
+                  id="search-reset"
+                  aria-label="Clear search and reset app"
+                  title="Clear search and reset app"
+                >✕</button>
+                <button class="search-button" type="submit" id="search-button">
+                  <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                  </svg>
+                  <span>Search</span>
+                </button>
+              </div>
         </form>
 
         <div class="loading-container is-hidden" id="loading-container" role="status" aria-live="polite" aria-busy="false">
