@@ -71,6 +71,10 @@
     var errorBanner = document.getElementById("error-banner");
     var errorMessage = document.getElementById("error-message");
     var weatherCard = document.getElementById("weather-card");
+    var forecastSection = document.getElementById("forecast-section");
+    var forecastStrip = document.getElementById("forecast-strip");
+    var hourlySection = document.getElementById("hourly-section");
+    var hourlyList = document.getElementById("hourly-list");
   
     function showLoading() {
       loadingContainer.classList.remove("is-hidden");
@@ -102,6 +106,13 @@
       if (weatherCard) {
         weatherCard.classList.remove("is-hidden");
       }
+    }
+  
+    function hideForecastAndHourly() {
+      if (forecastSection) forecastSection.classList.add("is-hidden");
+      if (hourlySection) hourlySection.classList.add("is-hidden");
+      if (forecastStrip) forecastStrip.innerHTML = "";
+      if (hourlyList) hourlyList.innerHTML = "";
     }
   
     function buildUrl(base, params) {
@@ -154,50 +165,49 @@
   
     /* ── WMO Weather Code Mapping ──────────────────────────── */
   
+    /* ── WMO Weather Code Mapping ──────────────────────────── */
+
     function mapWeatherCode(code) {
-      if (code === 0) {
+        if (code === 0) {
         return { label: "Clear Sky", icon: "clear" };
-      }
-      if (code >= 1 && code <= 3) {
+        }
+        if (code >= 1 && code <= 3) {
         return { label: "Partly Cloudy", icon: "partly-cloudy" };
-      }
-      if (code >= 45 && code <= 48) {
+        }
+        if (code >= 45 && code <= 48) {
         return { label: "Fog", icon: "fog" };
-      }
-      if (code >= 51 && code <= 67) {
+        }
+        if (code >= 51 && code <= 67) {
         return { label: "Rain", icon: "rain" };
-      }
-      if (code >= 71 && code <= 77) {
+        }
+        if (code >= 71 && code <= 77) {
         return { label: "Snow", icon: "snow" };
-      }
-      if (code >= 95 && code <= 99) {
+        }
+        if (code >= 95 && code <= 99) {
         return { label: "Thunderstorm", icon: "thunderstorm" };
-      }
-      return { label: "Unknown", icon: "unknown" };
+        }
+        return { label: "Unknown", icon: "unknown" };
     }
-  
+
     function getWeatherIconSvg(iconType) {
-      var icons = {
-        clear:
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2"></path><path d="M12 21v2"></path><path d="M4.22 4.22l1.42 1.42"></path><path d="M18.36 18.36l1.42 1.42"></path><path d="M1 12h2"></path><path d="M21 12h2"></path><path d="M4.22 19.78l1.42-1.42"></path><path d="M18.36 5.64l1.42-1.42"></path></svg>',
-        "partly-cloudy":
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"></path><path d="M12 20v2"></path><path d="M4.93 4.93l1.41 1.41"></path><path d="M17.66 17.66l1.41 1.41"></path><path d="M2 12h2"></path><path d="M20 12h2"></path><path d="M4.93 19.07l1.41-1.41"></path><path d="M17.66 6.34l1.41-1.41"></path><circle cx="12" cy="12" r="4"></circle><path d="M18 14a4 4 0 0 0-7.5-1.5"></path></svg>',
-        fog:
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M4 18h16"></path><path d="M6 14h12"></path></svg>',
-        rain:
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M8 19v2"></path><path d="M12 19v2"></path><path d="M16 19v2"></path></svg>',
-        snow:
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M10 20l1-2"></path><path d="M14 20l-1-2"></path><path d="M12 18v-2"></path></svg>',
-        thunderstorm:
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path><path d="M13 16l-2 4h3l-2 4"></path></svg>',
-        unknown:
-          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg>',
-      };
-  
-      return icons[iconType] || icons.unknown;
+        var icons = {
+        clear: "☀️",
+        "partly-cloudy": "⛅",
+        fog: "🌫️",
+        rain: "🌧️",
+        snow: "❄️",
+        thunderstorm: "⛈️",
+        unknown: "❓",
+        };
+
+        return icons[iconType] || icons.unknown;
     }
   
-    /* ── Weather Card Rendering ────────────────────────────── */
+    /* ── Formatting Helpers ──────────────────────────────────── */
+  
+    function resolveTimezone(timezone) {
+      return timezone === "auto" ? Intl.DateTimeFormat().resolvedOptions().timeZone : timezone;
+    }
   
     function getTemperatureClass(temp) {
       if (temp < 15) return "temp-cool";
@@ -207,8 +217,7 @@
   
     function formatLocalDate(isoString, timezone) {
       var date = new Date(isoString);
-      var validTimezone =
-        timezone === "auto" ? Intl.DateTimeFormat().resolvedOptions().timeZone : timezone;
+      var validTimezone = resolveTimezone(timezone);
   
       return new Intl.DateTimeFormat("en-US", {
         weekday: "long",
@@ -218,6 +227,37 @@
         timeZone: validTimezone,
       }).format(date);
     }
+  
+    function formatShortDayName(index, dateString, timezone) {
+      if (index === 0) return "Today";
+  
+      return new Intl.DateTimeFormat("en-US", {
+        weekday: "short",
+        timeZone: resolveTimezone(timezone),
+      }).format(new Date(dateString + "T12:00:00"));
+    }
+  
+    function formatHourTime(isoString, timezone) {
+      return new Intl.DateTimeFormat("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+        timeZone: resolveTimezone(timezone),
+      }).format(new Date(isoString));
+    }
+  
+    function findHourlyStartIndex(times, currentTime) {
+      var exactIndex = times.indexOf(currentTime);
+      if (exactIndex !== -1) return exactIndex;
+  
+      for (var i = 0; i < times.length; i++) {
+        if (times[i] >= currentTime) return i;
+      }
+  
+      return 0;
+    }
+  
+    /* ── Weather Card Rendering ────────────────────────────── */
   
     function renderWeatherCard(location, weatherData) {
       var current = weatherData.current;
@@ -265,6 +305,69 @@
       showWeatherCard();
     }
   
+    /* ── Forecast Strip Rendering ──────────────────────────── */
+  
+    function renderForecast(dailyData, timezone) {
+      if (!forecastStrip || !forecastSection) return;
+  
+      forecastStrip.innerHTML = "";
+  
+      for (var i = 0; i < 5; i++) {
+        var condition = mapWeatherCode(dailyData.weather_code[i]);
+        var dayName = formatShortDayName(i, dailyData.time[i], timezone);
+        var high = Math.round(dailyData.temperature_2m_max[i]);
+        var low = Math.round(dailyData.temperature_2m_min[i]);
+  
+        var card = document.createElement("article");
+        card.className = "forecast-card" + (i === 0 ? " forecast-card--today" : "");
+        card.setAttribute("role", "listitem");
+        card.setAttribute("aria-label", dayName + ", high " + high + ", low " + low);
+  
+        card.innerHTML =
+          '<p class="forecast-card__day">' + dayName + "</p>" +
+          '<div class="forecast-card__icon" aria-hidden="true">' + getWeatherIconSvg(condition.icon) + "</div>" +
+          '<div class="forecast-card__temps">' +
+          '<span class="forecast-card__high">' + high + "°</span>" +
+          '<span class="forecast-card__low">' + low + "°</span>" +
+          "</div>";
+  
+        forecastStrip.appendChild(card);
+      }
+  
+      forecastSection.classList.remove("is-hidden");
+    }
+  
+    /* ── Hourly Insights Rendering ─────────────────────────── */
+  
+    function renderHourly(hourlyData, timezone) {
+      if (!hourlyList || !hourlySection) return;
+  
+      var currentTime = document.getElementById("weather-date").getAttribute("datetime");
+      var startIndex = findHourlyStartIndex(hourlyData.time, currentTime);
+      var slice = hourlyData.time.slice(startIndex, startIndex + 6);
+  
+      hourlyList.innerHTML = "";
+  
+      slice.forEach(function (time, index) {
+        var dataIndex = startIndex + index;
+        var condition = mapWeatherCode(hourlyData.weather_code[dataIndex]);
+        var temp = Math.round(hourlyData.temperature_2m[dataIndex]);
+  
+        var row = document.createElement("li");
+        row.className = "hourly-row";
+        row.innerHTML =
+          '<time class="hourly-row__time" datetime="' + time + '">' + formatHourTime(time, timezone) + "</time>" +
+          '<span class="hourly-row__condition">' + condition.label + "</span>" +
+          '<span class="hourly-row__temp">' + temp + "°</span>";
+  
+        hourlyList.appendChild(row);
+      });
+  
+      hourlySection.classList.remove("is-hidden");
+    }
+  
+    /* ── Search Handler ────────────────────────────────────── */
+  
     async function handleSearch(event) {
       event.preventDefault();
   
@@ -278,6 +381,7 @@
       showLoading();
       hideError();
       hideWeatherCard();
+      hideForecastAndHourly();
   
       try {
         var location = await geocodeCity(query);
@@ -287,11 +391,16 @@
           location.timezone || "auto"
         );
   
+        var timezone = weatherData.timezone || location.timezone || "auto";
+  
         hideLoading();
         renderWeatherCard(location, weatherData);
+        renderForecast(weatherData.daily, timezone);
+        renderHourly(weatherData.hourly, timezone);
       } catch (error) {
         hideLoading();
         hideWeatherCard();
+        hideForecastAndHourly();
   
         if (error.message === "CITY_NOT_FOUND") {
           showError("City not found. Please check the spelling and try again.");

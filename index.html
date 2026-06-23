@@ -47,20 +47,8 @@
         </div>
 
         <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
-          <svg class="icon icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="5"></circle>
-            <path d="M12 1v2"></path>
-            <path d="M12 21v2"></path>
-            <path d="M4.22 4.22l1.42 1.42"></path>
-            <path d="M18.36 18.36l1.42 1.42"></path>
-            <path d="M1 12h2"></path>
-            <path d="M21 12h2"></path>
-            <path d="M4.22 19.78l1.42-1.42"></path>
-            <path d="M18.36 5.64l1.42-1.42"></path>
-          </svg>
-          <svg class="icon icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
+            <span class="icon-sun" aria-hidden="true">☀️</span>
+            <span class="icon-moon" aria-hidden="true">🌙</span>
         </button>
       </div>
 
@@ -145,37 +133,38 @@
         </div>
 
         <ul class="weather-card__stats">
-          <li class="weather-stat">
-            <svg class="weather-stat__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-            </svg>
-            <div class="weather-stat__content">
-              <span class="weather-stat__label">Humidity</span>
-              <span class="weather-stat__value" id="weather-humidity"></span>
-            </div>
-          </li>
-          <li class="weather-stat">
-            <svg class="weather-stat__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M9.59 4.59A2 2 0 1 1 11 8H2"></path>
-              <path d="M12.59 19.41A2 2 0 1 0 14 16H2"></path>
-              <path d="M17.73 7.73A2 2 0 1 1 19 12H2"></path>
-            </svg>
-            <div class="weather-stat__content">
-              <span class="weather-stat__label">Wind Speed</span>
-              <span class="weather-stat__value" id="weather-wind"></span>
-            </div>
-          </li>
-          <li class="weather-stat">
-            <svg class="weather-stat__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 6v6l4 2"></path>
-            </svg>
-            <div class="weather-stat__content">
-              <span class="weather-stat__label">Pressure</span>
-              <span class="weather-stat__value" id="weather-pressure"></span>
-            </div>
-          </li>
-        </ul>
+            <li class="weather-stat">
+              <span class="weather-stat__icon" aria-hidden="true">💧</span>
+              <div class="weather-stat__content">
+                <span class="weather-stat__label">Humidity</span>
+                <span class="weather-stat__value" id="weather-humidity"></span>
+              </div>
+            </li>
+            <li class="weather-stat">
+              <span class="weather-stat__icon" aria-hidden="true">💨</span>
+              <div class="weather-stat__content">
+                <span class="weather-stat__label">Wind Speed</span>
+                <span class="weather-stat__value" id="weather-wind"></span>
+              </div>
+            </li>
+            <li class="weather-stat">
+              <span class="weather-stat__icon" aria-hidden="true">⏲️</span>
+              <div class="weather-stat__content">
+                <span class="weather-stat__label">Pressure</span>
+                <span class="weather-stat__value" id="weather-pressure"></span>
+              </div>
+            </li>
+          </ul>
+      </section>
+
+      <section class="forecast-section is-hidden" id="forecast-section" aria-label="5-day forecast">
+        <h2 class="section-heading">5-Day Forecast</h2>
+        <div class="forecast-strip" id="forecast-strip" role="list"></div>
+      </section>
+
+      <section class="hourly-section is-hidden" id="hourly-section" aria-label="Hourly micro-data insights">
+        <h2 class="section-heading">Hourly Micro-Data Insights</h2>
+        <ul class="hourly-list" id="hourly-list"></ul>
       </section>
     </main>
 
