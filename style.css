@@ -729,38 +729,305 @@ input {
 }
 
 /* Mobile Responsiveness */
-@media (max-width: 480px) {
-  .search-container {
-    flex-direction: column;
-  }
+/* ── M6: Global theme transitions ─────────────────────────── */
 
-  .search-button {
-    width: 100%;
-  }
-
-  .weather-card__body {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .weather-card__condition {
-    flex-direction: row;
-    text-align: left;
-  }
-
-  .weather-card__stats {
-    grid-template-columns: 1fr;
-  }
-
-  .weather-card__temperature {
-    font-size: 3.25rem;
-  }
-
-  .hourly-row {
-    padding: 0.75rem;
+html {
+    transition: background-color var(--transition-fast), color var(--transition-fast);
   }
   
-  .hourly-row__time {
-    width: 3.75rem;
+  .site-header,
+  .weather-card,
+  .forecast-card,
+  .hourly-row,
+  .search-container,
+  .weather-stat,
+  .site-footer,
+  .error-banner {
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
   }
+  
+  /* ── M6: Interactive polish ───────────────────────────────── */
+  
+  .search-input {
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast),
+      box-shadow var(--transition-fast);
+  }
+  
+  .search-input:hover {
+    background-color: var(--color-surface);
+  }
+  
+  .search-input:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 0;
+  }
+  
+  .search-button,
+  .search-reset,
+  .theme-toggle {
+    transition:
+      background-color var(--transition-fast),
+      color var(--transition-fast),
+      border-color var(--transition-fast),
+      transform var(--transition-fast),
+      opacity var(--transition-fast);
+  }
+
+  .search-button:disabled {
+    background-color: var(--color-accent);
+  }
+  
+  .search-button:disabled,
+  .search-reset:disabled,
+  .theme-toggle:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+  }
+  
+  /* Disabled visuals while loading (no JS change required) */
+  .search-section:has(.loading-container:not(.is-hidden)) .search-button,
+  .search-section:has(.loading-container:not(.is-hidden)) .search-reset,
+  .search-section:has(.loading-container[aria-busy="true"]) .search-button,
+  .search-section:has(.loading-container[aria-busy="true"]) .search-reset {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none;
+  }
+  
+  .search-section:has(.loading-container:not(.is-hidden)) .search-input,
+  .search-section:has(.loading-container[aria-busy="true"]) .search-input {
+    opacity: 0.75;
+    cursor: wait;
+  }
+  
+  .nav-link,
+  .footer-link {
+    transition:
+      color var(--transition-fast),
+      background-color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+  
+  /* ── M6: Mobile (< 480px) ─────────────────────────────────── */
+  
+  @media (max-width: 479px) {
+    .app-shell {
+      max-width: 100%;
+      padding: 1rem 0.75rem 1.75rem;
+    }
+  
+    .site-header {
+      padding: 0.875rem 1rem 0;
+      margin-bottom: 1.25rem;
+    }
+  
+    .brand-title {
+      font-size: 1.2rem;
+    }
+  
+    /* Collapse non-functional nav — show active tab only */
+    .site-nav .nav-item:not(:has(.nav-link--active)) {
+      display: none;
+    }
+  
+    .nav-list {
+      overflow-x: visible;
+      justify-content: center;
+    }
+  
+    .nav-link {
+      padding: 0.625rem 1.25rem;
+    }
+  
+    .search-section,
+    .search-form,
+    .search-container {
+      width: 100%;
+    }
+  
+    .search-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .search-input,
+    .search-reset,
+    .search-button {
+      width: 100%;
+    }
+  
+    .search-reset {
+      height: 2.5rem;
+    }
+  
+    /* Forecast strip scrolls horizontally on mobile */
+    .forecast-strip {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      padding-bottom: 0.5rem;
+    }
+  
+    .forecast-card {
+      flex: 0 0 6.25rem;
+      scroll-snap-align: start;
+    }
+  
+    .weather-card__body {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .weather-card__condition {
+      flex-direction: row;
+      text-align: left;
+    }
+  
+    .weather-card__stats {
+      grid-template-columns: 1fr;
+    }
+  
+    .weather-card__temperature {
+      font-size: 3.25rem;
+    }
+  
+    .hourly-row {
+      padding: 0.75rem;
+    }
+  
+    .hourly-row__time {
+      width: 3.75rem;
+    }
+  }
+  
+  /* ── M6: Tablet (480px – 768px) ───────────────────────────── */
+  
+  @media (min-width: 480px) and (max-width: 768px) {
+    .app-shell {
+      max-width: 100%;
+      padding: 1.25rem 1.25rem 2rem;
+    }
+  
+    /* Inline navigation visible */
+    .site-nav .nav-item {
+      display: block;
+    }
+  
+    .nav-list {
+      overflow-x: visible;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
+  
+    .search-container {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  
+    .search-input {
+      flex: 1;
+      min-width: 0;
+    }
+  
+    .search-reset {
+      width: 2.5rem;
+    }
+  
+    .search-button {
+      width: auto;
+    }
+  
+    /* Non-scrolling forecast strip when it fits */
+    .forecast-strip {
+      overflow-x: visible;
+      justify-content: space-between;
+    }
+  
+    .forecast-card {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  
+    .weather-card__stats {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  /* ── M6: Desktop (768px+) ──────────────────────────────────── */
+  
+  @media (min-width: 768px) {
+    .app-shell {
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 1.5rem 1.25rem 2.5rem;
+    }
+  
+    .site-nav .nav-item {
+      display: block;
+    }
+  
+    .nav-list {
+      overflow-x: visible;
+      flex-wrap: nowrap;
+    }
+  
+    .forecast-strip {
+      overflow-x: visible;
+      gap: 0.75rem;
+    }
+  
+    .forecast-card {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  
+    .search-container {
+      gap: 0.75rem;
+    }
+  
+    .weather-card {
+      padding: 1.75rem;
+    }
+  
+    .weather-card__temperature {
+      font-size: 4.25rem;
+    }
+  }
+
+  /* ── M6: Interactive polish additions ──────────────────────── */
+
+/* Lift effect for interactive cards */
+.forecast-card:hover,
+.hourly-row:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-accent);
+  background-color: var(--color-bg);
+}
+
+/* Base transition for the lift effect */
+.forecast-card,
+.hourly-row {
+  transition: transform var(--transition-fast), 
+              box-shadow var(--transition-fast), 
+              border-color var(--transition-fast), 
+              background-color var(--transition-fast);
+}
+
+/* Focus styles for cards to ensure accessibility */
+.forecast-card:focus-within,
+.hourly-row:focus-within {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

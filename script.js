@@ -1,71 +1,15 @@
 (function () {
     "use strict";
   
-    /* ── Theme ─────────────────────────────────────────────── */
+    /* ── Constants & Elements ──────────────────────────────── */
   
     var STORAGE_KEY = "weather-app-theme";
+    var STORAGE_CITY_KEY = "weather-app-last-city";
     var THEME_LIGHT = "light";
     var THEME_DARK = "dark";
   
     var root = document.documentElement;
     var toggleButton = document.getElementById("theme-toggle");
-  
-    function getStoredTheme() {
-      try {
-        return localStorage.getItem(STORAGE_KEY);
-      } catch (error) {
-        return null;
-      }
-    }
-  
-    function saveTheme(theme) {
-      try {
-        localStorage.setItem(STORAGE_KEY, theme);
-      } catch (error) {
-        /* localStorage unavailable */
-      }
-    }
-  
-    function getPreferredTheme() {
-      var stored = getStoredTheme();
-      if (stored === THEME_LIGHT || stored === THEME_DARK) {
-        return stored;
-      }
-      if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        return THEME_DARK;
-      }
-      return THEME_LIGHT;
-    }
-  
-    function applyTheme(theme) {
-      root.setAttribute("data-theme", theme);
-      if (!toggleButton) return;
-      var isDark = theme === THEME_DARK;
-      toggleButton.setAttribute("aria-pressed", String(isDark));
-      toggleButton.setAttribute(
-        "aria-label",
-        isDark ? "Switch to light mode" : "Switch to dark mode"
-      );
-    }
-  
-    function toggleTheme() {
-      var current = root.getAttribute("data-theme");
-      var next = current === THEME_DARK ? THEME_LIGHT : THEME_DARK;
-      applyTheme(next);
-      saveTheme(next);
-    }
-  
-    applyTheme(getPreferredTheme());
-    if (toggleButton) {
-      toggleButton.addEventListener("click", toggleTheme);
-    }
-  
-    /* ── State & API ───────────────────────────────────────── */
-  
-    var STORAGE_CITY_KEY = "weather-app-last-city";
-    var GEOCODING_API = "https://geocoding-api.open-meteo.com/v1/search";
-    var FORECAST_API = "https://api.open-meteo.com/v1/forecast";
-  
     var searchForm = document.getElementById("search-form");
     var cityInput = document.getElementById("city-search");
     var resetButton = document.getElementById("search-reset");
@@ -78,7 +22,41 @@
     var hourlySection = document.getElementById("hourly-section");
     var hourlyList = document.getElementById("hourly-list");
   
-    /* ── UI Helpers ────────────────────────────────────────── */
+    /* ── Theme Logic ────────────────────────────────────────── */
+  
+    function getStoredTheme() {
+      try { return localStorage.getItem(STORAGE_KEY); } catch (e) { return null; }
+    }
+  
+    function saveTheme(theme) {
+      try { localStorage.setItem(STORAGE_KEY, theme); } catch (e) {}
+    }
+  
+    function getPreferredTheme() {
+      var stored = getStoredTheme();
+      if (stored === THEME_LIGHT || stored === THEME_DARK) return stored;
+      return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? THEME_DARK : THEME_LIGHT;
+    }
+  
+    function applyTheme(theme) {
+      root.setAttribute("data-theme", theme);
+      if (!toggleButton) return;
+      var isDark = theme === THEME_DARK;
+      toggleButton.setAttribute("aria-pressed", String(isDark));
+      toggleButton.setAttribute("aria-label", isDark ? "Switch to light mode" : "Switch to dark mode");
+    }
+  
+    applyTheme(getPreferredTheme());
+    if (toggleButton) {
+      toggleButton.addEventListener("click", function() {
+        var current = root.getAttribute("data-theme");
+        var next = current === THEME_DARK ? THEME_LIGHT : THEME_DARK;
+        applyTheme(next);
+        saveTheme(next);
+      });
+    }
+  
+    /* ── UI Helpers ─────────────────────────────────────────── */
   
     function showLoading() {
       loadingContainer.classList.remove("is-hidden");
@@ -96,104 +74,29 @@
     }
   
     function hideError() {
-      errorMessage.textContent = "";
       errorBanner.classList.add("is-hidden");
     }
   
-    function hideWeatherCard() {
-      if (weatherCard) weatherCard.classList.add("is-hidden");
-    }
-  
-    function showWeatherCard() {
-      if (weatherCard) weatherCard.classList.remove("is-hidden");
-    }
+    function hideWeatherCard() { if (weatherCard) weatherCard.classList.add("is-hidden"); }
+    function showWeatherCard() { if (weatherCard) weatherCard.classList.remove("is-hidden"); }
   
     function hideForecastAndHourly() {
       if (forecastSection) forecastSection.classList.add("is-hidden");
       if (hourlySection) hourlySection.classList.add("is-hidden");
-      if (forecastStrip) forecastStrip.innerHTML = "";
-      if (hourlyList) hourlyList.innerHTML = "";
-    }
-  
-    /* ── Persistence Logic ─────────────────────────────────── */
-  
-    function getStoredCity() {
-      try {
-        return localStorage.getItem(STORAGE_CITY_KEY);
-      } catch (error) {
-        return null;
-      }
-    }
-  
-    function saveStoredCity(cityName) {
-      try {
-        localStorage.setItem(STORAGE_CITY_KEY, cityName);
-      } catch (error) {
-        /* localStorage unavailable */
-      }
-    }
-  
-    function removeStoredCity() {
-      try {
-        localStorage.removeItem(STORAGE_CITY_KEY);
-      } catch (error) {
-        /* localStorage unavailable */
-      }
+      forecastStrip.innerHTML = "";
+      hourlyList.innerHTML = "";
     }
   
     function resetApp() {
       if (cityInput) cityInput.value = "";
-      removeStoredCity();
+      localStorage.removeItem(STORAGE_CITY_KEY);
       hideError();
       hideLoading();
       hideWeatherCard();
       hideForecastAndHourly();
     }
   
-    /* ── API Fetching ──────────────────────────────────────── */
-  
-    function buildUrl(base, params) {
-      var url = new URL(base);
-      Object.keys(params).forEach(function (key) {
-        url.searchParams.set(key, params[key]);
-      });
-      return url.toString();
-    }
-  
-    async function geocodeCity(cityName) {
-      var url = buildUrl(GEOCODING_API, {
-        name: cityName,
-        count: "1",
-        language: "en",
-        format: "json",
-      });
-  
-      var response = await fetch(url);
-      if (!response.ok) throw new Error("NETWORK_ERROR");
-  
-      var data = await response.json();
-      if (!data.results || data.results.length === 0) throw new Error("CITY_NOT_FOUND");
-  
-      return data.results[0];
-    }
-  
-    async function fetchWeather(latitude, longitude, timezoneString) {
-      var url = buildUrl(FORECAST_API, {
-        latitude: String(latitude),
-        longitude: String(longitude),
-        current: "temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,surface_pressure",
-        hourly: "temperature_2m,weather_code",
-        daily: "weather_code,temperature_2m_max,temperature_2m_min",
-        timezone: timezoneString,
-      });
-  
-      var response = await fetch(url);
-      if (!response.ok) throw new Error("NETWORK_ERROR");
-  
-      return response.json();
-    }
-  
-    /* ── WMO Weather Code Mapping (Emoji Version) ──────────── */
+    /* ── Data & Mapping ─────────────────────────────────────── */
   
     function mapWeatherCode(code) {
       if (code === 0) return { label: "Clear Sky", icon: "clear" };
@@ -207,245 +110,124 @@
   
     function getWeatherEmoji(iconType) {
       var icons = {
-        clear: "☀️",
-        "partly-cloudy": "⛅",
-        fog: "🌫️",
-        rain: "🌧️",
-        snow: "❄️",
-        thunderstorm: "⛈️",
-        unknown: "❓",
+        clear: "☀️", "partly-cloudy": "⛅", fog: "🌫️",
+        rain: "🌧️", snow: "❄️", thunderstorm: "⛈️", unknown: "❓"
       };
       return icons[iconType] || icons.unknown;
     }
   
-    /* ── Formatting Helpers ──────────────────────────────────── */
+    function resolveTimezone(tz) { return tz === "auto" ? Intl.DateTimeFormat().resolvedOptions().timeZone : tz; }
   
-    function resolveTimezone(timezone) {
-      return timezone === "auto" ? Intl.DateTimeFormat().resolvedOptions().timeZone : timezone;
-    }
+    function getHumidityColor(h) { return h > 80 ? "var(--color-temp-cool)" : "var(--color-text)"; }
   
-    function getTemperatureClass(temp) {
-      if (temp < 15) return "temp-cool";
-      if (temp <= 25) return "temp-neutral";
-      return "temp-warm";
-    }
-  
-    function formatLocalDate(isoString, timezone) {
-      var date = new Date(isoString);
-      var validTimezone = resolveTimezone(timezone);
-      return new Intl.DateTimeFormat("en-US", {
-        weekday: "long",
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        timeZone: validTimezone,
-      }).format(date);
-    }
-  
-    function formatShortDayName(index, dateString, timezone) {
-      if (index === 0) return "Today";
-      return new Intl.DateTimeFormat("en-US", {
-        weekday: "short",
-        timeZone: resolveTimezone(timezone),
-      }).format(new Date(dateString + "T12:00:00"));
-    }
-  
-    function formatHourTime(isoString, timezone) {
-      return new Intl.DateTimeFormat("en-GB", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-        timeZone: resolveTimezone(timezone),
-      }).format(new Date(isoString));
-    }
-  
-    function findHourlyStartIndex(times, currentTime) {
-      var exactIndex = times.indexOf(currentTime);
-      if (exactIndex !== -1) return exactIndex;
-      for (var i = 0; i < times.length; i++) {
-        if (times[i] >= currentTime) return i;
-      }
-      return 0;
-    }
-  
-    /* ── Rendering ─────────────────────────────────────────── */
+    /* ── Renderers ──────────────────────────────────────────── */
   
     function renderWeatherCard(location, weatherData) {
       var current = weatherData.current;
       var units = weatherData.current_units;
       var timezone = weatherData.timezone || location.timezone || "auto";
   
-      var cityEl = document.getElementById("weather-city");
-      var countryEl = document.getElementById("weather-country");
-      var dateEl = document.getElementById("weather-date");
-      var tempEl = document.getElementById("weather-temperature");
-      var conditionEl = document.getElementById("weather-condition");
-      var iconEl = document.getElementById("weather-icon");
-      var humidityEl = document.getElementById("weather-humidity");
-      var windEl = document.getElementById("weather-wind");
-      var pressureEl = document.getElementById("weather-pressure");
-  
-      var condition = mapWeatherCode(current.weather_code);
-      var temperature = current.temperature_2m;
-      var tempUnit = units.temperature_2m || "°C";
-  
-      if (cityEl) cityEl.textContent = location.name;
-      if (countryEl) countryEl.textContent = location.country;
+      document.getElementById("weather-city").textContent = location.name;
+      document.getElementById("weather-country").textContent = location.country;
       
-      if (dateEl) {
-        dateEl.textContent = formatLocalDate(current.time, timezone);
-        dateEl.setAttribute("datetime", current.time);
-      }
+      var dateEl = document.getElementById("weather-date");
+      dateEl.textContent = new Intl.DateTimeFormat("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric", timeZone: resolveTimezone(timezone) }).format(new Date(current.time));
+      dateEl.setAttribute("datetime", current.time);
   
-      if (tempEl) {
-        tempEl.textContent = Math.round(temperature) + tempUnit;
-        tempEl.setAttribute("aria-label", "Current temperature " + Math.round(temperature) + " degrees");
-        tempEl.classList.remove("temp-cool", "temp-neutral", "temp-warm");
-        tempEl.classList.add(getTemperatureClass(temperature));
-      }
+      var tempEl = document.getElementById("weather-temperature");
+      var temp = Math.round(current.temperature_2m);
+      tempEl.textContent = temp + (units.temperature_2m || "°C");
+      tempEl.className = "weather-card__temperature " + (temp < 15 ? "temp-cool" : temp <= 25 ? "temp-neutral" : "temp-warm");
   
-      if (conditionEl) conditionEl.textContent = condition.label;
-      if (iconEl) iconEl.textContent = getWeatherEmoji(condition.icon);
+      document.getElementById("weather-condition").textContent = mapWeatherCode(current.weather_code).label;
+      document.getElementById("weather-icon").textContent = getWeatherEmoji(mapWeatherCode(current.weather_code).icon);
   
-      if (humidityEl) humidityEl.textContent = Math.round(current.relative_humidity_2m) + (units.relative_humidity_2m || "%");
-      if (windEl) windEl.textContent = current.wind_speed_10m + " " + (units.wind_speed_10m || "km/h");
+      var humEl = document.getElementById("weather-humidity");
+      humEl.textContent = Math.round(current.relative_humidity_2m) + (units.relative_humidity_2m || "%");
+      humEl.style.color = getHumidityColor(current.relative_humidity_2m);
   
-      if (pressureEl) {
-        if (current.surface_pressure != null) {
-          pressureEl.textContent = Math.round(current.surface_pressure) + " " + (units.surface_pressure || "hPa");
-        } else {
-          pressureEl.textContent = "—";
-        }
-      }
+      document.getElementById("weather-wind").textContent = current.wind_speed_10m + " " + (units.wind_speed_10m || "km/h");
+      document.getElementById("weather-pressure").textContent = current.surface_pressure ? Math.round(current.surface_pressure) + " " + (units.surface_pressure || "hPa") : "—";
   
       showWeatherCard();
     }
   
     function renderForecast(dailyData, timezone) {
-      if (!forecastStrip || !forecastSection) return;
       forecastStrip.innerHTML = "";
-  
       for (var i = 0; i < 5; i++) {
-        var condition = mapWeatherCode(dailyData.weather_code[i]);
-        var dayName = formatShortDayName(i, dailyData.time[i], timezone);
+        var code = dailyData.weather_code[i];
+        var info = mapWeatherCode(code);
         var high = Math.round(dailyData.temperature_2m_max[i]);
         var low = Math.round(dailyData.temperature_2m_min[i]);
+        var day = i === 0 ? "Today" : new Intl.DateTimeFormat("en-US", { weekday: "short", timeZone: resolveTimezone(timezone) }).format(new Date(dailyData.time[i] + "T12:00:00"));
   
-        var cardHtml = 
-          '<article class="forecast-card' + (i === 0 ? " forecast-card--today" : "") + '" role="listitem" aria-label="' + dayName + ', high ' + high + ', low ' + low + '">' +
-            '<span class="forecast-card__day">' + dayName + '</span>' +
-            '<span class="forecast-card__icon" aria-hidden="true">' + getWeatherEmoji(condition.icon) + '</span>' +
-            '<div class="forecast-card__temps">' +
-              '<span class="forecast-card__temp-max">' + high + '°</span>' +
-              '<span class="forecast-card__temp-min">' + low + '°</span>' +
-            '</div>' +
-          '</article>';
-  
-        forecastStrip.insertAdjacentHTML("beforeend", cardHtml);
+        forecastStrip.insertAdjacentHTML("beforeend", 
+          '<article class="forecast-card' + (i === 0 ? " forecast-card--today" : "") + '" role="listitem">' +
+            '<p class="forecast-card__day">' + day + '</p>' +
+            '<div class="forecast-card__icon">' + getWeatherEmoji(info.icon) + '</div>' +
+            '<div class="forecast-card__temps"><span class="forecast-card__high">' + high + '°</span><span class="forecast-card__low">' + low + '°</span></div>' +
+          '</article>');
       }
       forecastSection.classList.remove("is-hidden");
     }
   
     function renderHourly(hourlyData, timezone) {
-      if (!hourlyList || !hourlySection) return;
-  
-      var currentTime = document.getElementById("weather-date").getAttribute("datetime");
-      var startIndex = findHourlyStartIndex(hourlyData.time, currentTime);
-      var slice = hourlyData.time.slice(startIndex, startIndex + 6);
-  
       hourlyList.innerHTML = "";
+      var currentTime = document.getElementById("weather-date").getAttribute("datetime");
+      var startIndex = hourlyData.time.findIndex(function(t) { return t >= currentTime; }) || 0;
   
-      slice.forEach(function (time, index) {
-        var dataIndex = startIndex + index;
-        var condition = mapWeatherCode(hourlyData.weather_code[dataIndex]);
-        var temp = Math.round(hourlyData.temperature_2m[dataIndex]);
-  
-        var rowHtml = 
+      hourlyData.time.slice(startIndex, startIndex + 6).forEach(function (time, i) {
+        var idx = startIndex + i;
+        var info = mapWeatherCode(hourlyData.weather_code[idx]);
+        hourlyList.insertAdjacentHTML("beforeend", 
           '<li class="hourly-row">' +
-            '<time class="hourly-row__time" datetime="' + time + '">' + formatHourTime(time, timezone) + '</time>' +
-            '<div class="hourly-row__details">' +
-              '<span class="hourly-row__icon" aria-hidden="true">' + getWeatherEmoji(condition.icon) + '</span>' +
-              '<span class="hourly-row__condition">' + condition.label + '</span>' +
-            '</div>' +
-            '<span class="hourly-row__temp">' + temp + '°</span>' +
-          '</li>';
-  
-        hourlyList.insertAdjacentHTML("beforeend", rowHtml);
+            '<time class="hourly-row__time">' + new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: resolveTimezone(timezone) }).format(new Date(time)) + '</time>' +
+            '<div class="hourly-row__details"><span class="hourly-row__icon">' + getWeatherEmoji(info.icon) + '</span><span class="hourly-row__condition">' + info.label + '</span></div>' +
+            '<span class="hourly-row__temp">' + Math.round(hourlyData.temperature_2m[idx]) + '°</span>' +
+          '</li>');
       });
-  
       hourlySection.classList.remove("is-hidden");
     }
   
-    /* ── App Execution ──────────────────────────────────────── */
+    /* ── App Execution ─────────────────────────────────────── */
   
     async function fetchWeatherForQuery(query) {
-      if (!query) {
-        showError("Please enter a city or meteorological station name.");
-        hideLoading();
-        return;
-      }
-  
-      showLoading();
-      hideError();
-      hideWeatherCard();
-      hideForecastAndHourly();
-  
+      if (!query) return;
+      showLoading(); hideError(); hideWeatherCard(); hideForecastAndHourly();
       try {
-        var location = await geocodeCity(query);
-        var weatherData = await fetchWeather(
-          location.latitude,
-          location.longitude,
-          location.timezone || "auto"
-        );
-  
-        var timezone = weatherData.timezone || location.timezone || "auto";
+        var res = await fetch("https://geocoding-api.open-meteo.com/v1/search?name=" + encodeURIComponent(query) + "&count=1&format=json");
+        var data = await res.json();
+        if (!data.results) throw new Error("CITY_NOT_FOUND");
+        var loc = data.results[0];
+        
+        var weatherRes = await fetch("https://api.open-meteo.com/v1/forecast?latitude=" + loc.latitude + "&longitude=" + loc.longitude + "&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,surface_pressure&hourly=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=" + (loc.timezone || "auto"));
+        var weatherData = await weatherRes.json();
   
         hideLoading();
-        renderWeatherCard(location, weatherData);
-        renderForecast(weatherData.daily, timezone);
-        renderHourly(weatherData.hourly, timezone);
-      } catch (error) {
-        hideLoading();
-        hideWeatherCard();
-        hideForecastAndHourly();
-  
-        if (error.message === "CITY_NOT_FOUND") {
-          showError("City not found. Please check the spelling and try again.");
-        } else if (error.message === "NETWORK_ERROR") {
-          showError("Unable to reach the weather service. Please check your connection and try again.");
-        } else {
-          showError("Something went wrong. Please try again.");
-        }
+        renderWeatherCard(loc, weatherData);
+        renderForecast(weatherData.daily, weatherData.timezone);
+        renderHourly(weatherData.hourly, weatherData.timezone);
+        weatherCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (e) {
+        hideLoading(); showError("City not found or network error.");
       }
     }
   
-    async function handleSearch(event) {
-      event.preventDefault();
-      var query = cityInput.value.trim();
-      await fetchWeatherForQuery(query);
-  
-      if (query && errorBanner.classList.contains("is-hidden")) {
-        saveStoredCity(query);
+    searchForm.addEventListener("submit", function(e) {
+      e.preventDefault();
+      var q = cityInput.value.trim();
+      if(q) {
+          fetchWeatherForQuery(q);
+          localStorage.setItem(STORAGE_CITY_KEY, q);
       }
-    }
+    });
   
-    function loadStoredCityOnBoot() {
-      var storedCity = getStoredCity();
-      if (!storedCity || !cityInput) return;
-  
-      cityInput.value = storedCity;
-      fetchWeatherForQuery(storedCity).then(function () {
-        if (errorBanner.classList.contains("is-hidden")) {
-          saveStoredCity(storedCity);
-        }
-      });
-    }
-  
-    /* ── Event Listeners ───────────────────────────────────── */
-    if (searchForm) searchForm.addEventListener("submit", handleSearch);
     if (resetButton) resetButton.addEventListener("click", resetApp);
   
-    // Boot the app
-    loadStoredCityOnBoot();
+    var lastCity = localStorage.getItem(STORAGE_CITY_KEY);
+    if (lastCity) {
+      cityInput.value = lastCity;
+      fetchWeatherForQuery(lastCity);
+    }
   
   })();
