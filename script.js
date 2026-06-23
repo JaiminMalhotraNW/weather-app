@@ -229,5 +229,6 @@
       cityInput.value = lastCity;
       fetchWeatherForQuery(lastCity);
     }
-  
+
+    
   })();
